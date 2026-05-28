@@ -1,9 +1,4 @@
 class ArcticEnvironment:
-    """
-    극지방 생태계의 전체 환경을 관리하는 클래스.
-    IceField와 HunterEvent 객체를 포함하여
-    빙하 감소, 기온 변화, 개체 밀도, 종료 조건을 관리한다.
-    """
 
     def __init__(self):
         # 현재 턴 수 (int)
@@ -31,29 +26,61 @@ class ArcticEnvironment:
         - ice_field의 melt() 호출
         - calculate_density(animals) 호출
         """
+        if self.turn is not None:
+            self.turn += 1
 
-        pass
+        if self.temperature is not None and self.global_warming_rate is not None:
+            self.temperature += self.global_warming_rate
+
+        if self.ice_field is not None:
+            self.ice_field.melt()
+
+        self.calculate_density(animals)
+
+        return None
 
     def calculate_density(self, animals):
         """
         - alive가 True인 생물 수 계산
         - ice_field.area를 이용해 density 계산
         """
+        alive_count = sum(1 for animal in animals if getattr(animal, "alive", False))
+        area = getattr(self.ice_field, "area", None)
 
-        pass
+        if area is None or area == 0:
+            self.density = None
+        else:
+            self.density = alive_count / area
+
+        return self.density
 
     def handle_event(self, key, animals):
         """
         - hunter_event.trigger(key) 호출
         - hunter_event가 active 상태가 되면 eliminate_all(animals) 호출
         """
+        if self.hunter_event is None:
+            return None
 
-        pass
+        self.hunter_event.trigger(key)
+
+        if self.hunter_event.active:
+            self.hunter_event.eliminate_all(animals)
+
+        return self.hunter_event.active
 
     def check_end_condition(self):
         """
         반환: True/False
         종료 조건:  ice_field.is_melted() or hunter_event.active가 True
         """
+        ice_melted = False
+        hunter_active = False
 
-        pass
+        if self.ice_field is not None:
+            ice_melted = self.ice_field.is_melted()
+
+        if self.hunter_event is not None:
+            hunter_active = bool(self.hunter_event.active)
+
+        return ice_melted or hunter_active

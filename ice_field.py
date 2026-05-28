@@ -1,7 +1,4 @@
 class IceField:
-    """
-    빙하 상태를 관리하는 클래스
-    """
 
     def __init__(self):
 
@@ -19,19 +16,33 @@ class IceField:
         - 현재 area 감소
         - 최소 면적 이하로 감소하지 않도록 처리
         """
+        if self.area is None or self.melt_rate is None:
+            return None
 
-        pass
+        self.area -= self.melt_rate
+
+        if self.min_area is not None and self.area < self.min_area:
+            self.area = self.min_area
+
+        return self.area
 
     def is_melted(self):
         """
         반환: True / False
         """
+        if self.area is None or self.min_area is None:
+            return False
 
-        pass
+        return self.area <= self.min_area
 
     def contains(self, location):
         """
         반환: True / False
         """
+        if self.area is None or location is None:
+            return False
 
-        pass
+        x, y = location
+        side_length = self.area ** 0.5
+
+        return 0 <= x <= side_length and 0 <= y <= side_length
